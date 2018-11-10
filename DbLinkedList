@@ -1,0 +1,168 @@
+#include "stdafx.h"
+#include <iostream>
+#include "DblLinkedList.h"
+using namespace std;
+DblLinkedList::DblLinkedList() {
+	head = nullptr;
+	tail = nullptr;
+	it = nullptr;
+	count = 0;
+}
+DblLinkedList::DblLinkedList(const DblLinkedList & dll)
+{
+	dll.resetIterator();
+	head = tail = nullptr;
+	count = 0;
+	resetIterator();
+	while (dll.it->next != nullptr) {
+		push_back(dll.it->data);
+		dll.it = dll.it->next;
+	}
+	push_back(dll.it->data);
+}
+DblLinkedList::~DblLinkedList()
+{
+	delete head; delete tail; delete it;
+}
+bool DblLinkedList::push_back(const YZString& str) {
+	Node *temp = new Node(str);
+	if (head == nullptr) {
+		head = tail = temp;
+		count++;
+		return true;
+	}
+	else {
+		tail->next = temp;
+		temp->prev = tail;
+		tail = temp;
+		count++;
+		return true;
+	}
+	return false;
+}
+void DblLinkedList::resetIterator() const {
+	it = head;
+}
+bool DblLinkedList::hasMore() const {
+	if (it != nullptr) {
+		return true;
+	}
+	else return false;
+}
+YZString DblLinkedList::next() const {
+	YZString temp = it->data;
+	it = it->next;
+	return YZString(temp);
+}
+void DblLinkedList::testConnections() {
+	// write test for connections
+	resetIterator();
+	while (it != tail) {
+		if (it == it->next->prev) {
+			it = it->next;
+		}
+		else {
+			cout << "Bad connection at " << it->data;
+		}
+	}
+	cout << "TEST CONNECTIONS Passed\n";
+}
+DblLinkedList & DblLinkedList::operator=(const DblLinkedList & dll)
+{
+	if (this != &dll) {
+		if (it != nullptr) {
+			while (it != nullptr) {
+				it = it->next;
+				delete it->prev;
+			}
+			delete tail;
+		}
+		dll.resetIterator();
+		head = tail = nullptr;
+		count = 0;
+		resetIterator();
+		while (dll.it != nullptr) {
+			push_back(dll.it->data);
+			dll.it = dll.it->next;
+		}
+	}
+	return *this;
+}
+bool DblLinkedList::insert(const YZString & str)
+{
+	resetIterator();
+	Node *temp = new Node(str);
+	if (it == nullptr) {
+		head = tail = temp;
+		count++;
+		return true;
+	}
+	else if (it->data > str && it->prev == nullptr) {
+		count++;
+		it->prev = temp;
+		temp->next = it;
+		head = temp;
+		return true;
+	}
+	else if (it->data == str) {
+		return false;
+	}
+	else {
+		while (it->data < str) {
+			if (it->next == nullptr) {
+				push_back(str);
+				it = it->next;
+				return true;
+			}
+			else {
+				it = it->next;
+				if (it->data == str) {
+					return false;
+				}
+				else if (it->data > str) {
+					count++;
+					it->prev->next = temp;
+					temp->prev = it->prev;
+					temp->next = it;
+					it->prev = temp;
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+bool DblLinkedList::remove(const YZString & str)
+{
+	resetIterator();
+	while (it->next != nullptr) {
+		if (it->data == str) {
+			if (it->prev == nullptr) {
+				head = it->next;
+			}
+			else it->prev->next = it->next;
+			if (it->next == nullptr) {
+				tail = it->prev;
+			}
+			else it->next->prev = it->prev;
+			count--;
+			delete it;
+			return true;
+		}
+		else it = it->next;
+	}
+	return false;
+}
+int DblLinkedList::getCount()
+{
+	return count;
+}
+ostream & operator<<(ostream & ostr, const DblLinkedList & dll)
+{
+	dll.resetIterator();
+	while (dll.it != nullptr) {
+		ostr << dll.it->data << " ";
+		dll.it = dll.it->next;
+	}
+	return ostr;
+}
