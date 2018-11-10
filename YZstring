@@ -1,0 +1,153 @@
+#include "stdafx.h"
+#include "YZString.h"
+#include <iostream>
+#include <iomanip>
+YZString::YZString() {
+	str = new char[cap];
+	str[0] = '\0';
+	end = 0;
+	countObject++;
+}
+YZString::YZString(const char* pstr) {
+	while (pstr[end] != '\0') {
+		end++;
+		if (cap <= end) {
+			cap += 20;
+		}
+	}
+	str = new char[cap];
+	countObject++;
+	int i = 0;
+	while (pstr[i] != '\0') {
+		str[i] = pstr[i];
+		i++;
+	}
+	end = i;
+	str[i] = '\0';
+}
+YZString::YZString(const YZString & mstr)
+{
+	cap = mstr.cap;
+	end = mstr.end;
+	while (mstr[end] != '\0') {
+		end++;
+		if (cap <= end) {
+			cap += 20;
+		}
+	}
+	str = new char[cap];
+	countObject++;
+	for (int i = 0; i <= end; i++) {
+		str[i] = mstr.str[i];
+	}
+}
+YZString::~YZString()
+{
+	deleteObject++;
+	delete[] str;
+}
+const char * YZString::c_str() {
+	return(str);
+}
+const int YZString::length() {
+	return (end);
+}
+const int YZString::capacity() {
+	return (cap);
+}
+const int YZString::count() {
+	return (countObject);
+}
+const int YZString::getCurrentObject()
+{
+	return countObject-deleteObject;
+}
+const int YZString::getCreatedObject()
+{
+	return countObject;
+}
+const char YZString::operator[](const int index)const {
+	return str[index];
+}
+YZString YZString::operator+(const YZString rvalue)const {
+	YZString copy;
+	copy.str = str;
+	while (copy.str[copy.end] != '\0') {
+		copy.end++;
+	}
+	for (int i = 0; i < rvalue.end; i++) {
+		if (copy.cap <= copy.end) {
+			copy.cap += 20;
+		}
+		copy.str[copy.end] = rvalue.str[i];
+		copy.end++;
+	}
+	copy.str[copy.end] = '\0';
+	return YZString(copy);
+}
+bool YZString::operator>(const YZString & rvalue)const {
+	if (compareTo(rvalue) > 0) return true;
+	else return false;
+}
+bool YZString::operator<(const YZString & rvalue)const {
+	if (compareTo(rvalue) < 0) return true;
+	else return false;
+}
+bool YZString::operator==(const YZString & rvalue)const {
+	if (compareTo(rvalue) == 0) return true;
+	else return false;
+}
+int YZString::compareTo(const YZString & astr)const {
+	int compare = 0;
+	int length = 0;
+	if (end < astr.end)
+	{
+		length = astr.end;
+	}
+	else length = end;
+	for (int i = 0; i < length; i++) {
+		compare = toupper(str[i]) - toupper(astr.str[i]);
+		if (compare != 0) {
+			i = length;
+		}
+	}
+	return (compare);
+}
+YZString & YZString::operator=(const YZString argStr)
+{
+	if (this != &argStr) {
+		cap = argStr.cap;
+		delete[] str;
+		deleteObject++;
+		str = new char[cap];
+		countObject++;
+		end = argStr.end;
+		int i = 0;
+		for (i = 0; argStr.str[i] != '\0'; i++) {
+			str[i] = argStr.str[i];
+		}
+		str[i] = '\0';
+	}
+	return *this;
+}
+istream & operator>>(istream & istr, YZString & mstr)
+{
+	istr >> mstr.str;
+	mstr.end = 0;
+	mstr.cap = 20;
+	while (mstr.str[mstr.end] != '\0') {
+		mstr.end++;
+		if (mstr.cap <= mstr.end) {
+			mstr.cap += 20;
+		}
+	}
+	if (mstr.end != 0 && ispunct(mstr.str[mstr.end - 1])) {
+		mstr.str[mstr.end - 1] = '\0';
+		mstr.end--;
+	}
+	return istr;
+}
+ostream & operator<<(ostream& ostr, const YZString & mstr) {
+	ostr << mstr.str;
+	return ostr;
+}
